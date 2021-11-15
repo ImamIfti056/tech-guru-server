@@ -21,6 +21,7 @@ async function run(){
         const productsCollection = database.collection('products');
         const reviewsCollection = database.collection('reviews');
         const ordersCollection = database.collection('all_orders');
+        const usersCollection = database.collection('users');
         
         // POST REVIEW
         app.post('/reviews', async (req, res) => {
@@ -34,6 +35,44 @@ async function run(){
             const newOrder = req.body;
             const result = await ordersCollection.insertOne(newOrder);
             res.json(result);
+        })
+
+        // POST USER 
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.json(result);
+        });
+
+        //STORE USER 
+        app.put('/users', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const options = { upsert: true };
+            const updateDoc = { $set: user };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            res.json(result);
+        });
+
+        // MAKE ADMIN 
+        app.put('/users/admin', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const updateDoc = { $set: { role: 'admin' } };
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.json(result);
+        })
+
+        // FIND ADMIN 
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            let isAdmin = false;
+            if (user?.role === 'admin') {
+                isAdmin = true;
+            }
+            res.json({ admin: isAdmin });
         })
         
         
