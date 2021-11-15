@@ -20,11 +20,19 @@ async function run(){
         const database = client.db('tech_guru');
         const productsCollection = database.collection('products');
         const reviewsCollection = database.collection('reviews');
+        const ordersCollection = database.collection('all_orders');
         
         // POST REVIEW
         app.post('/reviews', async (req, res) => {
             const review = req.body;
-            result = await reviewsCollection.insertOne(review);
+            const result = await reviewsCollection.insertOne(review);
+            res.json(result);
+        })
+        
+        // POST ALL ORDERS
+        app.post('/allorders', async (req, res) => {
+            const newOrder = req.body;
+            const result = await ordersCollection.insertOne(newOrder);
             res.json(result);
         })
         
@@ -41,6 +49,13 @@ async function run(){
             const cursor = reviewsCollection.find({});
             const reviews = await cursor.toArray();
             res.send(reviews);
+        })
+
+        // GET ALL ORDERS
+        app.get('/allorders', async(req, res) => {
+            const cursor = ordersCollection.find({});
+            const orders = await cursor.toArray();
+            res.send(orders);
         })
 
         
