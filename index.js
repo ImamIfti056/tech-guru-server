@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config()
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
+require('dotenv').config()
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -19,20 +19,30 @@ async function run(){
         await client.connect();
         const database = client.db('tech_guru');
         const productsCollection = database.collection('products');
-
-        // GET
+        const reviewsCollection = database.collection('reviews');
+        
+        // POST REVIEW
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            result = await reviewsCollection.insertOne(review);
+            res.json(result);
+        })
+        
+        
+        // GET PRODUCTS
         app.get('/products', async(req, res) => {
             const cursor = productsCollection.find({});
             const products = await cursor.toArray();
             res.send(products);
         })
 
-        // post
-        // app.post('/products', async(req, res) => {
-        //     const product = {name: 'a product'};
-        //     const result = await productsCollection.insertOne(product);
-        //     console.log(result);
-        // })
+        // GET REVIEWS
+        app.get('/reviews', async(req, res) => {
+            const cursor = reviewsCollection.find({});
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        })
+
         
     }
     finally{
